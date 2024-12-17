@@ -11,28 +11,28 @@ use linear_algebra::vector::Vector;
 use kinematics::{ body::Body, Assert, IsTrue };
 
 #[derive( Clone, Default, Debug, PartialEq )]
-pub struct Force<T, const DIM: usize>( Vector<T, DIM> )
+pub struct Torque<T, const DIM: usize>( Vector<T, DIM> )
 where
     T: 'static + Default + Copy + Debug;
 
-impl<T, const DIM: usize> Force<T, DIM>
+impl<T, const DIM: usize> Torque<T, DIM>
 where
     T: 'static + Default + Copy + Debug
 {
-    pub fn new( force: [ T; DIM ] ) -> Self {
-        Self( Vector::from( force ) )
+    pub fn new( torque: [ T; DIM ] ) -> Self {
+        Self( Vector::from( torque ) )
     }
 
-    pub fn x( &self ) -> &T where Assert<{ DIM >= 1 }>: IsTrue { &self.0[0] }
-    pub fn y( &self ) -> &T where Assert<{ DIM >= 2 }>: IsTrue { &self.0[1] }
-    pub fn z( &self ) -> &T where Assert<{ DIM >= 3 }>: IsTrue { &self.0[2] }
+    pub fn u( &self ) -> &T where Assert<{ DIM >= 1 }>: IsTrue { &self.0[0] }
+    pub fn v( &self ) -> &T where Assert<{ DIM >= 2 }>: IsTrue { &self.0[1] }
+    pub fn w( &self ) -> &T where Assert<{ DIM >= 3 }>: IsTrue { &self.0[2] }
 
     pub fn apply_1st_ord( &self, body: &mut Body<T, DIM, 1>, time_step: T )
     where
         T: 'static + Default + Copy + Debug + Sub<Output = T> + Mul<Output = T> + Div<Output = T> + AddAssign,
     {
         let acceleration = self.0 / *body.mass(); // a = F / m
-        *body.spatial_velocity_mut() += acceleration * time_step; // v = v + a * time_step
+        *body.angular_velocity_mut() += acceleration * time_step; // v = v + a * time_step
     }
 
     pub fn apply_2nd_ord( &self, body: &mut Body<T, DIM, 2> )
@@ -40,7 +40,7 @@ where
         T: 'static + Default + Copy + Debug + Sub<Output = T> + Mul<Output = T> + Div<Output = T> + AddAssign,
     {
         let acceleration = self.0 / *body.mass(); // a = F / m
-        *body.spatial_acceleration_mut() = acceleration;
+        *body.angular_acceleration_mut() = acceleration;
     }
 
     pub fn apply<const ORD: usize>( &self, body: &mut Body<T, DIM, ORD>, time_step: T )
@@ -51,11 +51,11 @@ where
         [(); ORD + 1]:
     {
         let acceleration = self.0 / *body.mass(); // a = F / m
-        body.update_spatial_acceleration( acceleration, time_step );
+        body.update_angular_acceleration( acceleration, time_step );
     }
 }
 
-impl<T, const DIM: usize> Deref for Force<T, DIM>
+impl<T, const DIM: usize> Deref for Torque<T, DIM>
 where
     T: 'static + Default + Copy + Debug
 {
@@ -66,7 +66,7 @@ where
     }
 }
 
-impl <T, const DIM: usize> DerefMut for Force<T, DIM>
+impl <T, const DIM: usize> DerefMut for Torque<T, DIM>
 where
     T: 'static + Default + Copy + Debug
 {
@@ -75,7 +75,7 @@ where
     }
 }
 
-impl<T, const DIM: usize> From<Vector<T, DIM>> for Force<T, DIM>
+impl<T, const DIM: usize> From<Vector<T, DIM>> for Torque<T, DIM>
 where
     T: 'static + Default + Copy + Debug
 {
@@ -84,18 +84,18 @@ where
     }
 }
 
-pub type Force1D<T> = Force<T, 1>;
-pub type Force2D<T> = Force<T, 2>;
-pub type Force3D<T> = Force<T, 3>;
-pub type Force4D<T> = Force<T, 4>;
+pub type Torque1D<T> = Torque<T, 1>;
+pub type Torque2D<T> = Torque<T, 2>;
+pub type Torque3D<T> = Torque<T, 3>;
+pub type Torque4D<T> = Torque<T, 4>;
 
 #[cfg(test)]
 mod tests {
     use super::*;
 
     #[test]
-    fn test_force() {
-        let force = Force1D::<f32>::default();
-        assert_eq!( *force.x(), 0.0 );
+    fn test_torque() {
+        let force = Torque1D::<f32>::default();
+        assert_eq!( *force.u(), 0.0 );
     }
 }
