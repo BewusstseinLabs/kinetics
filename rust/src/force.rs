@@ -6,9 +6,9 @@ use std::{
     ops::{ Deref, DerefMut, Sub, Mul, Div, AddAssign }
 };
 
+use const_expr_bounds::{ Assert, IsTrue };
 use linear_algebra::vector::Vector;
-
-use kinematics::{ body::Body, Assert, IsTrue };
+use kinematics::body::Body;
 
 #[derive( Clone, Default, Debug, PartialEq )]
 pub struct Force<T, const DIM: usize>( Vector<T, DIM> )
